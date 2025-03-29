@@ -284,8 +284,7 @@ def show_docs_page():
 
         ```
         // Format date as Month Day, Year
-        concat(month_name(to_date([date])), " ", to_string(day(to_date([date]))), ", ", to_string(year(to_date([date]))))
-
+        concat(to_string(month(to_date([purchase_date]))), " ", to_string(day(to_date([purchase_date]))), ", ", to_string(year(to_date([purchase_date]))))
         // Calculate days since purchase
         date_diff_days(today(), to_date([purchase_date]))
 
