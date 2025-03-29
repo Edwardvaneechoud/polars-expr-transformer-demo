@@ -1,14 +1,11 @@
 import streamlit as st
 import polars as pl
+import pandas as pd
 from polars_expr_transformer.process.polars_expr_transformer import simple_function_to_expr
 
 
-def show_examples_page():
-    """Show the examples page"""
-    st.header("Examples")
-    st.write("Learn by example how to use Polars Expression Transformer.")
-
-    # Create a sample dataframe for examples
+def create_sample_dataframe():
+    """Create a sample dataframe for examples"""
     sample_data = {
         "name": ["John Smith", "Jane Doe", "Robert Johnson", "Maria Garcia", "Wei Zhang"],
         "age": [34, 42, 28, 55, 39],
@@ -16,12 +13,23 @@ def show_examples_page():
         "salary": [75000, 95000, 65000, 120000, 85000],
         "joined_date": ["2020-03-15", "2019-07-22", "2021-01-05", "2018-05-30", "2020-11-11"]
     }
+    return pl.DataFrame(sample_data)
 
-    df = pl.DataFrame(sample_data)
 
-    # Show the sample dataframe
+def show_examples_page():
+    """Show the examples page"""
+    st.header("Examples")
+    st.write("Learn by example how to use Polars Expression Transformer.")
+
+    # Create and store sample dataframe in session state for persistence
+    if 'example_df_polars' not in st.session_state:
+        st.session_state.example_df_polars = create_sample_dataframe()
+        # Create a pandas version for display
+        st.session_state.example_df_pandas = st.session_state.example_df_polars.to_pandas()
+
+    # Show the sample dataframe (using the pandas version for safety)
     st.subheader("Sample DataFrame")
-    st.dataframe(df)
+    st.dataframe(st.session_state.example_df_pandas)
 
     # Create tabs for different example categories
     example_tabs = st.tabs([
@@ -59,7 +67,7 @@ def show_examples_page():
             }
         }
 
-        display_examples(string_examples, df)
+        display_examples(string_examples)
 
     # Numeric Operations examples
     with example_tabs[1]:
@@ -88,7 +96,7 @@ def show_examples_page():
             }
         }
 
-        display_examples(numeric_examples, df)
+        display_examples(numeric_examples)
 
     # Date Operations examples
     with example_tabs[2]:
@@ -113,7 +121,7 @@ def show_examples_page():
             }
         }
 
-        display_examples(date_examples, df)
+        display_examples(date_examples)
 
     # Conditional Logic examples
     with example_tabs[3]:
@@ -138,7 +146,7 @@ def show_examples_page():
             }
         }
 
-        display_examples(conditional_examples, df)
+        display_examples(conditional_examples)
 
     # Combined examples
     with example_tabs[4]:
@@ -159,27 +167,44 @@ def show_examples_page():
             }
         }
 
-        display_examples(combined_examples, df)
+        display_examples(combined_examples)
 
 
-def display_examples(examples, df):
+def display_examples(examples):
     """Helper function to display examples with try buttons"""
     for title, example in examples.items():
         with st.expander(title, expanded=False):
             st.write(example["desc"])
-
             st.code(example["expr"], language="python")
 
             if st.button(f"Try it", key=f"try_{title}"):
                 try:
-                    result = df.select(simple_function_to_expr(example["expr"]))
+                    # Create a new clone of the DataFrame for each operation
+                    df_clone = st.session_state.example_df_polars.clone()
+
+                    # Apply the expression
+                    expr_obj = simple_function_to_expr(example["expr"])
+                    result_polars = df_clone.select(expr_obj.alias("result"))
+
+                    # Convert to pandas for display
+                    result_pandas = result_polars.to_pandas()
+
                     st.success("Example successfully applied!")
-                    st.dataframe(result)
+                    st.dataframe(result_pandas)
                 except Exception as e:
-                    st.error(f"Error: {e}")
+                    st.error(f"Error: {str(e)}")
+
+
+def initialize_session_state():
+    """Initialize the session state variables if they don't exist"""
+    if 'example_df_polars' not in st.session_state:
+        st.session_state.example_df_polars = None
+    if 'example_df_pandas' not in st.session_state:
+        st.session_state.example_df_pandas = None
 
 
 if __name__ == "__main__":
     # This allows running this page directly for development
     st.set_page_config(page_title="Examples", layout="wide")
+    initialize_session_state()
     show_examples_page()

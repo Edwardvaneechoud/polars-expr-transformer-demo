@@ -1,12 +1,11 @@
 import streamlit as st
 import polars as pl
 import uuid
-
+import copy
 from streamlit_agraph import agraph, Node, Edge, Config
 
 from polars_expr_transformer.process.polars_expr_transformer import build_func, simple_function_to_expr
 from polars_expr_transformer.visualize import generate_visualization
-
 
 
 def build_expression_graph(func_obj):
@@ -80,7 +79,7 @@ def build_expression_graph(func_obj):
                 hasattr(obj, 'func_ref') and hasattr(obj.func_ref, 'val') and
                 obj.func_ref.val == 'pl.lit' and len(obj.args) == 1):
             # Check if we're wrapping an expression (as in get_readable_pl_function)
-            if hasattr(obj.args[0], 'get_pl_func') and isinstance(obj.args[0].get_pl_func(), pl.expr.Expr):
+            if hasattr(obj.args[0], 'get_pl_func') and isinstance(obj.args[0].get_pl_func(), pl.Expr):
                 return _build_graph(obj.args[0], parent_id, edge_label)
             else:
                 # Otherwise, keep the pl.lit wrapper and process its argument
@@ -288,8 +287,12 @@ def visualize_expression(expr):
     try:
         # Build the function object from the expression
         func_obj = build_func(expr)
-        if isinstance(func_obj.args[0].get_pl_func(), pl.expr.Expr):
-            func_obj = func_obj.args[0]
+
+        # Fixing check to use pl.Expr instead of pl.expr.Expr for better compatibility
+        if hasattr(func_obj, 'args') and func_obj.args and hasattr(func_obj.args[0], 'get_pl_func'):
+            pl_func = func_obj.args[0].get_pl_func()
+            if isinstance(pl_func, pl.Expr):  # Changed from pl.expr.Expr to pl.Expr
+                func_obj = func_obj.args[0]
 
         # Access the inner function object if wrapped in TempFunc
         if hasattr(func_obj, '__class__') and func_obj.__class__.__name__ == 'TempFunc' and func_obj.args:
@@ -324,8 +327,15 @@ def create_sample_dataframe():
 def apply_expression_to_dataframe(df, expr):
     """Apply the expression to the DataFrame and return the result"""
     try:
-        result = df.select(simple_function_to_expr(expr).alias("result"))
-        return result
+        # Create a shallow copy of the dataframe to avoid mutable borrowing issues
+        df_copy = df.clone()
+        # Apply the expression to the copy instead of the original
+        expr_obj = simple_function_to_expr(expr)
+        result = df_copy.select(expr_obj.alias("result"))
+
+        # Convert to pandas early to avoid mutable borrowing errors later in streamlit
+        result_pandas = result.to_pandas()
+        return result_pandas
     except Exception as e:
         st.error(f"Error applying expression: {str(e)}")
         return None
@@ -339,7 +349,8 @@ def show_tree_visualizer_page():
     """)
 
     # Sample DataFrame for demonstration
-    sample_df = create_sample_dataframe()
+    if 'sample_df' not in st.session_state:
+        st.session_state.sample_df = create_sample_dataframe()
 
     # User can enter a custom expression
     custom_expr = st.text_area(
@@ -351,21 +362,24 @@ def show_tree_visualizer_page():
 
     # Show sample data
     st.subheader("Sample Data")
-    st.dataframe(sample_df, use_container_width=True)
+    # Convert polars to pandas for safer display
+    sample_df_pandas = st.session_state.sample_df.to_pandas()
+    st.dataframe(sample_df_pandas, use_container_width=True)
 
     # Visualize button
     if st.button("Visualize Expression", type="primary"):
         with st.spinner("Processing expression..."):
-            # Visualize the expression tree
-            nodes, edges, text_viz = visualize_expression(custom_expr)
-            if nodes:
-                st.session_state.custom_nodes = nodes
-                st.session_state.custom_edges = edges
-                st.session_state.text_viz = text_viz
+            # Add error handling around the entire process
+            try:
+                # Visualize the expression tree
+                nodes, edges, text_viz = visualize_expression(custom_expr)
+                if nodes:
+                    st.session_state.custom_nodes = nodes
+                    st.session_state.custom_edges = edges
+                    st.session_state.text_viz = text_viz
 
-                # Try to apply the expression to the sample data
-                try:
-                    result_df = apply_expression_to_dataframe(sample_df, custom_expr)
+                    # Try to apply the expression to the sample data
+                    result_df = apply_expression_to_dataframe(st.session_state.sample_df, custom_expr)
                     if result_df is not None:
                         st.session_state.custom_result = result_df
 
@@ -373,8 +387,8 @@ def show_tree_visualizer_page():
                         func_obj = build_func(custom_expr)
                         polars_expr = func_obj.get_readable_pl_function()
                         st.session_state.custom_polars = polars_expr
-                except Exception as e:
-                    st.warning(f"Could not apply expression to sample data: {str(e)}")
+            except Exception as e:
+                st.error(f"An error occurred during visualization: {str(e)}")
 
     # Display results if available
     if 'custom_nodes' in st.session_state and 'custom_edges' in st.session_state:
@@ -383,6 +397,7 @@ def show_tree_visualizer_page():
         with col1:
             if 'custom_result' in st.session_state:
                 st.subheader("Expression Result")
+                # Already converted to pandas in the apply_expression_to_dataframe function
                 st.dataframe(st.session_state.custom_result, use_container_width=True)
 
                 if 'custom_polars' in st.session_state:
@@ -426,7 +441,6 @@ def show_tree_visualizer_page():
                 }
             )
             with st.expander("Expression Tree", expanded=True):
-
                 # Use agraph to display the visualization
                 # Wrap in a container with fixed height to prevent large graphs from expanding too much
                 with st.container(height=450):
