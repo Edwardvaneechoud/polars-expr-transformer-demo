@@ -1,5 +1,10 @@
 import streamlit as st
-from pages import data_transform, documentation, function_overview, examples, tree_visualizer
+
+from streamlit_pages.data_transform import show_data_transform_page
+from streamlit_pages.documentation import show_docs_page
+from streamlit_pages.function_overview import show_functions_overview_page
+from streamlit_pages.examples import show_examples_page
+from streamlit_pages.tree_visualizer import show_tree_visualizer_page
 
 # Set page configuration
 st.set_page_config(
@@ -23,19 +28,19 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
 
 # Content for each tab
 with tab1:
-    data_transform.show_data_transform_page()
+    show_data_transform_page()
 
 with tab2:
-    documentation.show_docs_page()
-#
+    show_docs_page()
+
 with tab3:
-    examples.show_examples_page()
-#
+    show_examples_page()
+
 with tab4:
-    function_overview.show_functions_overview_page()
+    show_functions_overview_page()
 
 with tab5:
-    tree_visualizer.show_tree_visualizer_page()
+    show_tree_visualizer_page()
 
 # Sidebar with general info
 st.sidebar.title("About")
@@ -46,5 +51,5 @@ Polars Expression Transformer is a Python library that provides a simple way to 
 
 It is designed for users who are familiar with SQL or Tableau and want to leverage the power of Polars for data processing tasks.
 
-### [View on GitHub](https://github.com/yourusername/polars-expr-transformer)
+### [View on GitHub](https://github.com/edwardvaneechoud/polars-expr-transformer)
 """)
