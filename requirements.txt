@@ -1,0 +1,3 @@
+streamlit>=1.18.0
+polars>=1.25.1
+polars-expr-transformer>=0.4.3.0

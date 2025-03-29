@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "polars-expr-transformer-demo"
+version = "0.1.0"
+description = "Interactive Streamlit application to demonstrate and use Polars Expression Transformer"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Your Name", email = "your.email@example.com"}
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "streamlit>=1.18.0",
+    "polars>=1.20.0",
+    "polars-expr-transformer>=0.4.3.0",
+    "matplotlib>=3.5.0",
+    "networkx>=2.7.0",
+    "pygraphviz>=1.9",  # For graph layouts with Graphviz
+]
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "flake8",
+    "pytest",
+]
+
+[tool.setuptools]
+packages = ["streamlit_app"]
