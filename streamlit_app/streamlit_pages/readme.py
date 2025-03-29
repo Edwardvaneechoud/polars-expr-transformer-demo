@@ -25,10 +25,6 @@ def show_readme_page():
     * Creating dynamic data transformations
     * Simplifying complex Polars expressions
 
-    ## Contributing
-
-    Contributions are welcome! Please feel free to submit a Pull Request.
-
     ## Contact
 
     """)

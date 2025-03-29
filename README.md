@@ -22,10 +22,6 @@ Try the live demo at: [Polars Expression Transformer Demo](https://polars-expr-t
 * Creating dynamic data transformations
 * Simplifying complex Polars expressions
 
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
 ## Contact
 
 - GitHub: [@edwardvaneechoud](https://github.com/edwardvaneechoud)
