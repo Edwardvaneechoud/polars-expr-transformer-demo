@@ -17,10 +17,6 @@ def show_readme_page():
     * **Functions Overview**: Browse all available functions in the library
     * **Tree Visualizer**: See how expressions are parsed into execution trees
 
-    ## Live Demo
-
-    Try the live demo at: [Polars Expression Transformer Demo](https://polars-expr-transformer-playground-whuwbghlymon84t5ciewp3.streamlit.app/)
-
     ## About Polars Expression Transformer
 
     [Polars Expression Transformer](https://github.com/edwardvaneechoud/polars_expr_transformer) is a powerful library that allows you to write simple string expressions that get converted into optimized [Polars](https://pola.rs/) operations. It's ideal for:
@@ -35,12 +31,11 @@ def show_readme_page():
 
     ## Contact
 
-    - GitHub: [@edwardvaneechoud](https://github.com/edwardvaneechoud)
     """)
 
     # Add GitHub button
     st.markdown("""
-    <a href="https://github.com/edwardvaneechoud/polars_expr_transformer" target="_blank" style="text-decoration: none;">
+    <a href="https://github.com/edwardvaneechoud/polars-expr-transformer-demo" target="_blank" style="text-decoration: none;">
         <div style="
             display: inline-flex;
             align-items: center;
