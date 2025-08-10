@@ -3,55 +3,184 @@ import streamlit as st
 
 def show_readme_page():
     """Show the README page with project overview"""
-    st.header("About Polars Expression Transformer")
 
-    # README content
+    # Add Flowfile branding at the top
     st.markdown("""
-    An interactive Streamlit application for exploring and working with Polars Expression Transformer, making data transformation in Polars more accessible and visual.
+    <div style="
+        background: linear-gradient(135deg, #00CED1 0%, #6B46C1 100%);
+        padding: 2rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+        text-align: center;
+    ">
+        <h1 style="color: white; margin: 0; font-size: 2.5rem;">Flowfile Formula Syntax</h1>
+        <p style="color: rgba(255,255,255,0.9); margin-top: 0.5rem; font-size: 1.2rem;">
+            Write Excel-like formulas that compile to optimized Polars expressions
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
 
-    ## Features
+    # Quick example to immediately show what this is
+    col1, col2 = st.columns(2)
 
-    * **Data Transformer**: Apply expressions to real data and see results instantly
-    * **Documentation**: Comprehensive guide to expression syntax and usage
-    * **Examples**: Learn from practical examples across different types of operations
-    * **Functions Overview**: Browse all available functions in the library
-    * **Tree Visualizer**: See how expressions are parsed into execution trees
+    with col1:
+        st.markdown("### 📝 Write This")
+        st.code("""
+[price] * [quantity]
+IF([status] = 'active', [amount], 0)
+ROUND([value] * 1.1, 2)
+        """, language="excel")
 
-    ## About Polars Expression Transformer
+    with col2:
+        st.markdown("### ⚡ Get This")
+        st.code("""
+pl.col("price") * pl.col("quantity")
+pl.when(pl.col("status") == "active").then(pl.col("amount")).otherwise(0)
+pl.col("value").mul(1.1).round(2)
+        """, language="python")
 
-    [Polars Expression Transformer](https://github.com/edwardvaneechoud/polars_expr_transformer) is a powerful library that allows you to write simple string expressions that get converted into optimized [Polars](https://pola.rs/) operations. It's ideal for:
+    st.markdown("---")
 
-    * Users coming from SQL or spreadsheet backgrounds
-    * Creating dynamic data transformations
-    * Simplifying complex Polars expressions
+    # About section with Flowfile context
+    st.header("🚀 Interactive Flowfile Formula Playground")
 
-    ## Contact
+    st.markdown("""
+    This is the official playground for **Flowfile Formula Syntax** - a powerful feature of [Flowfile](https://github.com/edwardvaneechoud/Flowfile) 
+    that lets you write intuitive, Excel-like formulas that automatically compile to optimized Polars expressions.
 
+    ### Why Flowfile Formulas?
+
+    Flowfile bridges the gap between business users familiar with Excel and developers using Polars:
+    - **📊 Business Users**: Write formulas just like in Excel or Google Sheets
+    - **🐍 Developers**: Get optimized Polars expressions automatically
+    - **🔄 Seamless Integration**: Use in both Flowfile's visual editor and Python API
     """)
 
-    # Add GitHub button
+    # Features section with Flowfile branding
+    st.header("✨ Features")
+
+    feature_cols = st.columns(3)
+
+    with feature_cols[0]:
+        st.markdown("""
+        **🔄 Data Transformer**
+
+        Apply Flowfile formulas to real data and see results instantly
+        """)
+
+    with feature_cols[1]:
+        st.markdown("""
+        **📖 Documentation**
+
+        Complete guide to Flowfile formula syntax and functions
+        """)
+
+    with feature_cols[2]:
+        st.markdown("""
+        **🌳 Tree Visualizer**
+
+        See how formulas parse into Polars execution trees
+        """)
+
+    # How it works in Flowfile
+    st.header("🔧 How It Works in Flowfile")
+
     st.markdown("""
-    <a href="https://github.com/edwardvaneechoud/polars-expr-transformer-demo" target="_blank" style="text-decoration: none;">
-        <div style="
-            display: inline-flex;
-            align-items: center;
-            background-color: #24292e;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            font-weight: 600;
-            margin-top: 1rem;
-        ">
-            <svg style="margin-right: 0.5rem;" height="20" width="20" viewBox="0 0 16 16" fill="currentColor">
-                <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
-            </svg>
-            View on GitHub
-        </div>
-    </a>
-    """, unsafe_allow_html=True)
+    In Flowfile, you can use formula syntax in both the visual editor and Python API:
+    """)
+
+    # Show both usage contexts
+    tab1, tab2 = st.tabs(["Python API", "Visual Editor"])
+
+    with tab1:
+        st.code("""
+import flowfile as ff
+
+df = ff.FlowFrame(your_data)
+
+# Use Flowfile formulas instead of Polars expressions
+df = df.with_columns(
+    flowfile_formulas=[
+        "[price] * [quantity]",
+        "IF([discount] > 0, [price] * (1 - [discount]), [price])",
+        "ROUND([total] / [count], 2)"
+    ],
+    output_column_names=["revenue", "final_price", "average"]
+)
+
+# Or in filters
+df = df.filter(flowfile_formula="[status] = 'active' AND [amount] > 1000")
+        """, language="python")
+
+    with tab2:
+        st.info(
+            "In Flowfile's visual editor, formula nodes accept this syntax directly in the formula field - no need to write complex Polars expressions!")
+
+    # Links section
+    st.header("🔗 Learn More")
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.markdown("""
+        <a href="https://github.com/edwardvaneechoud/Flowfile" target="_blank" style="text-decoration: none;">
+            <div style="
+                background-color: #00CED1;
+                color: white;
+                padding: 1rem;
+                border-radius: 6px;
+                text-align: center;
+                font-weight: 600;
+                transition: transform 0.2s;
+            ">
+                📦 Flowfile Repository
+            </div>
+        </a>
+        """, unsafe_allow_html=True)
+
+    with col2:
+        st.markdown("""
+        <a href="https://github.com/edwardvaneechoud/polars_expr_transformer" target="_blank" style="text-decoration: none;">
+            <div style="
+                background-color: #6B46C1;
+                color: white;
+                padding: 1rem;
+                border-radius: 6px;
+                text-align: center;
+                font-weight: 600;
+                transition: transform 0.2s;
+            ">
+                🔧 Formula Parser Library
+            </div>
+        </a>
+        """, unsafe_allow_html=True)
+
+    with col3:
+        st.markdown("""
+        <a href="https://edwardvaneechoud.github.io/Flowfile/for-developers/python-api/expressions/" target="_blank" style="text-decoration: none;">
+            <div style="
+                background-color: #24292e;
+                color: white;
+                padding: 1rem;
+                border-radius: 6px;
+                text-align: center;
+                font-weight: 600;
+                transition: transform 0.2s;
+            ">
+                📚 Documentation
+            </div>
+        </a>
+        """, unsafe_allow_html=True)
+
+    # Footer
+    st.markdown("---")
 
 
 if __name__ == "__main__":
     # This allows running this page directly for development
-    st.set_page_config(page_title="README", layout="wide")
+    st.set_page_config(
+        page_title="Flowfile Formula Syntax Playground",
+        page_icon="📊",
+        layout="wide"
+    )
     show_readme_page()
