@@ -157,7 +157,7 @@ df = df.filter(flowfile_formula="[status] = 'active' AND [amount] > 1000")
 
     with col3:
         st.markdown("""
-        <a href="https://edwardvaneechoud.github.io/Flowfile/for-developers/python-api/expressions/" target="_blank" style="text-decoration: none;">
+        <a href="https://edwardvaneechoud.github.io/Flowfile/for-developers/python-api/expressions.html" target="_blank" style="text-decoration: none;">
             <div style="
                 background-color: #24292e;
                 color: white;
