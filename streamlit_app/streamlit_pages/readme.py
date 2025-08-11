@@ -27,7 +27,7 @@ def show_readme_page():
         st.markdown("### 📝 Write This")
         st.code("""
 [price] * [quantity]
-IF([status] = 'active', [amount], 0)
+if [status] = 'active' then [amount] else 0 endif
 ROUND([value] * 1.1, 2)
         """, language="excel")
 
@@ -36,7 +36,7 @@ ROUND([value] * 1.1, 2)
         st.code("""
 pl.col("price") * pl.col("quantity")
 pl.when(pl.col("status") == "active").then(pl.col("amount")).otherwise(0)
-pl.col("value").mul(1.1).round(2)
+pl.col("value").round(2)
         """, language="python")
 
     st.markdown("---")
